@@ -1,0 +1,47 @@
+version: '3'
+
+services:
+  vaultwarden:
+    image: vaultwarden/server:latest
+    container_name: vw_app
+    restart: always
+    expose:
+      - 82
+    environment:
+      WEBSOCKET_ENABLED: "true"  # Enable WebSocket notifications.
+      SMTP_HOST: "smtp.gmail.com"
+      SMTP_FROM: "yone.hdez.leon@gmail.com"
+      SMTP_PORT: "587"
+      SMTP_SECURITY: "starttls"
+      SMTP_USERNAME: "yone.hdez.leon@gmail.com" 
+      SMTP_PASSWORD: "crshseznjvyyrrqz"
+      DOMAIN: "https://10.1.0.78"
+      ROCKET_PORT: 82
+    volumes:
+      - ./vw-data:/data
+    networks:
+      default:
+        ipv4_address: 192.168.50.2
+
+  nginx:
+    image: nginx
+    container_name: vw_nginx
+    ports:
+      - '80:80'
+      - '443:443'
+    restart: unless-stopped
+    volumes:
+      - ./data/nginx/conf.d:/etc/nginx/conf.d
+      - ./data/nginx/ssl:/etc/ssl
+    networks:
+      default:
+        ipv4_address: 192.168.50.3
+    
+networks:
+  default:
+    name: apps_net
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.50.0/24
+          gateway: 192.168.50.1
